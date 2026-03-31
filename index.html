@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>要吃什麼好呢？</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>要吃什麼好呢？</h1>
+        <p id="suggestion">點擊按鈕，幫你決定下一餐！</p>
+        <button onclick="decide()">幫我選一個</button>
+    </div>
+
+    <script>
+        function decide() {
+            const foods = ["牛肉麵", "迴轉壽司", "滷肉飯", "便利商店", "麥當勞", "義大利麵", "火鍋"];
+            const random = Math.floor(Math.random() * foods.length);
+            document.getElementById("suggestion").innerText = "今天就吃：" + foods[random];
+        }
+    </script>
+
+</body>
+</html>
