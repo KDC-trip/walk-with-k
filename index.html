@@ -6,21 +6,64 @@
     <style>
         body { background-color: #fdf2e9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: "Microsoft JhengHei", sans-serif; }
         .container { text-align: center; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 550px; }
-        h1 { color: #e67e22; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        h1 { color: #e67e22; margin-bottom: 20px; }
         .controls { margin-bottom: 20px; }
         input { padding: 10px; border: 2px solid #fbdcbe; border-radius: 8px; width: 200px; outline: none; }
         button { background-color: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
         button:hover { background-color: #d35400; }
-        button:disabled { background-color: #ccc; }
+        
+        /* 核心網格：固定大小防止跑位 */
+        .board { 
+            display: grid; 
+            gap: 10px; 
+            margin: 20px auto; 
+            width: 480px; 
+            height: 480px; 
+            position: relative; 
+        }
+        
+        .cell { 
+            background: white; 
+            border: 2px solid #fbdcbe; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            font-size: 15px; 
+            color: #555; 
+            transition: 0.1s; 
+            padding: 5px;
+            text-align: center;
+        }
 
-        .board { display: grid; gap: 10px; margin: 20px auto; width: 450px; height: 450px; position: relative; }
-        .cell { background: white; border: 2px solid #fbdcbe; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; color: #555; transition: 0.1s; position: relative; padding: 5px; text-align: center; box-shadow: 2px 2px 5px rgba(0,0,0,0.03); }
-        .cell.special { color: #e74c3c; background-color: #fff5f5; border-style: dashed; }
-        .cell.active { background-color: #ffeb3b; border-color: #e67e22; color: #e67e22; transform: scale(1.08); z-index: 5; box-shadow: 0 0 15px rgba(230, 126, 34, 0.5); }
+        /* 特殊格樣式 */
+        .cell.special { 
+            color: #e74c3c; 
+            background-color: #fff5f5; 
+            border: 2px dashed #ff7675; 
+        }
 
-        .center-area { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; width: 45%; }
-        .decide-btn { width: 100%; padding: 15px; font-size: 1.3rem; border-radius: 15px; box-shadow: 0 6px 12px rgba(230, 126, 34, 0.3); }
-        #result-text { font-size: 1.5rem; color: #d35400; font-weight: bold; margin-top: 20px; height: 35px; }
+        /* 選中效果 */
+        .cell.active { 
+            background-color: #ffeb3b; 
+            border-color: #e67e22; 
+            color: #e67e22; 
+            transform: scale(1.1); 
+            z-index: 5; 
+            box-shadow: 0 0 15px rgba(230, 126, 34, 0.5); 
+        }
+
+        .center-area { 
+            position: absolute; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 10; 
+            width: 40%; 
+        }
+        
+        .decide-btn { width: 100%; padding: 15px; font-size: 1.2rem; border-radius: 15px; }
+        #result-text { font-size: 1.5rem; color: #d35400; font-weight: bold; margin-top: 20px; min-height: 35px; }
     </style>
 </head>
 <body>
@@ -29,7 +72,7 @@
     <h1>🍱 美食大富翁</h1>
     <div class="controls">
         <input type="text" id="foodInput" placeholder="想吃什麼？" onkeypress="if(event.key==='Enter') addFood()">
-        <button onclick="addFood()">新增</button>
+        <button onclick="addFood()">新增選項</button>
     </div>
     <div class="board" id="board">
         <div class="center-area">
@@ -40,105 +83,120 @@
 </div>
 
 <script>
+    // 初始食物清單
     let foods = ["牛肉麵", "壽司", "滷肉飯", "超商", "水餃", "煎餃", "豆花", "麥當勞", "義麵", "火鍋", "拉麵", "便當"];
-    const specialItems = ["下 1 格", "前 3 格", "下 2 格", "再選一次"];
-    let currentDisplayList = [];
+    // 你要求的填充內容
+    const filler = ["下 1 格", "前 3 格", "下 2 格", "再選一次"];
+    
+    let finalGridList = []; // 最終顯示在格子裡的內容
     let currentIndex = 0;
     let isRunning = false;
 
     function renderBoard() {
         const board = document.getElementById("board");
-        board.querySelectorAll('.cell').forEach(c => c.remove());
+        // 清除舊格子（保留中心區）
+        const oldCells = board.querySelectorAll('.cell');
+        oldCells.forEach(c => c.remove());
 
-        // 1. 計算矩形規格 n x n
-        let n = Math.ceil((foods.length + 4) / 4);
-        if (n < 4) n = 4;
-        const totalCapacity = 4 * n - 4; // 矩形外圈總格數
-
-        // 2. 打亂原始食物清單 (Shuffle)
-        let shuffledFoods = [...foods].sort(() => Math.random() - 0.5);
-
-        // 3. 填充剩餘空格
-        currentDisplayList = [...shuffledFoods];
-        let specialIdx = 0;
-        while (currentDisplayList.length < totalCapacity) {
-            currentDisplayList.push(specialItems[specialIdx % specialItems.length]);
-            specialIdx++;
+        // 1. 決定矩形邊長 n (至少 4x4)
+        // 總格數公式 = 4n - 4
+        let n = 4;
+        while ((4 * n - 4) < foods.length) {
+            n++;
         }
+        const totalCellsNeeded = 4 * n - 4;
 
-        // 4. 設定 Grid
+        // 2. 準備內容：打亂食物 + 填充缺口
+        let combined = [...foods];
+        // 隨機打亂食物順序
+        combined.sort(() => Math.random() - 0.5);
+
+        // 如果格子不夠，就從 filler 裡面抓東西來補，直到補滿 totalCellsNeeded
+        let fIdx = 0;
+        while (combined.length < totalCellsNeeded) {
+            combined.push(filler[fIdx % filler.length]);
+            fIdx++;
+        }
+        
+        // 最終內容確定後，再整體隨機打亂一次（讓特殊格不會都擠在最後面）
+        finalGridList = combined.sort(() => Math.random() - 0.5);
+
+        // 3. 設定 Grid 樣式
         board.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
         board.style.gridTemplateRows = `repeat(${n}, 1fr)`;
 
-        // 5. 計算順時針路徑
+        // 4. 計算順時針路徑座標
         const path = [];
-        for (let i = 0; i < n; i++) path.push({r: 1, c: i + 1}); // 上
-        for (let i = 2; i < n; i++) path.push({r: i, c: n});     // 右
-        for (let i = n; i >= 1; i--) path.push({r: n, c: i});    // 下
-        for (let i = n - 1; i >= 2; i--) path.push({r: i, c: 1}); // 左
+        for (let i = 0; i < n; i++) path.push({r: 1, c: i + 1}); // 上邊
+        for (let i = 2; i < n; i++) path.push({r: i, c: n});     // 右邊
+        for (let i = n; i >= 1; i--) path.push({r: n, c: i});    // 下邊
+        for (let i = n - 1; i >= 2; i--) path.push({r: i, c: 1}); // 左邊
 
-        // 6. 渲染
-        currentDisplayList.forEach((text, i) => {
+        // 5. 渲染格子
+        finalGridList.forEach((text, i) => {
             const div = document.createElement('div');
             div.className = 'cell';
-            if (specialItems.includes(text)) div.classList.add('special');
+            if (filler.includes(text)) div.classList.add('special');
             div.id = `cell-${i}`;
             div.innerText = text;
             div.style.gridRow = path[i].r;
             div.style.gridColumn = path[i].c;
+            
+            // 自動調整字體大小
             if (n > 5) div.style.fontSize = "13px";
+            if (n > 7) div.style.fontSize = "11px";
+
             board.appendChild(div);
         });
     }
 
     function addFood() {
         const input = document.getElementById("foodInput");
-        if (input.value.trim()) {
-            foods.push(input.value.trim());
+        const val = input.value.trim();
+        if (val) {
+            foods.push(val);
             input.value = "";
-            renderBoard(); // 新增後會自動打亂位置並填補
+            renderBoard();
         }
     }
 
     function startGame() {
-        if (isRunning || foods.length === 0) return;
+        if (isRunning || finalGridList.length === 0) return;
         isRunning = true;
         document.getElementById("startBtn").disabled = true;
         document.getElementById("result-text").innerText = "命運轉動中...";
 
         let rounds = 3;
-        let totalSteps = (currentDisplayList.length * rounds) + Math.floor(Math.random() * currentDisplayList.length);
+        let totalSteps = (finalGridList.length * rounds) + Math.floor(Math.random() * finalGridList.length);
         let currentStep = 0;
         let speed = 50;
 
         function roll() {
             document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
-            currentIndex = (currentIndex + 1) % currentDisplayList.length;
-            document.getElementById(`cell-${currentIndex}`).classList.add('active');
+            currentIndex = (currentIndex + 1) % finalGridList.length;
+            const activeCell = document.getElementById(`cell-${currentIndex}`);
+            if (activeCell) activeCell.classList.add('active');
 
             currentStep++;
             if (currentStep < totalSteps) {
                 if (totalSteps - currentStep < 10) speed += 50;
                 setTimeout(roll, speed);
             } else {
-                handleResult(currentDisplayList[currentIndex]);
+                isRunning = false;
+                document.getElementById("startBtn").disabled = false;
+                const result = finalGridList[currentIndex];
+                
+                if (filler.includes(result)) {
+                    document.getElementById("result-text").innerText = "🎲 哎呀！是「" + result + "」";
+                } else {
+                    document.getElementById("result-text").innerText = "🎉 就決定吃：" + result + "！";
+                }
             }
         }
         roll();
     }
 
-    function handleResult(result) {
-        isRunning = false;
-        document.getElementById("startBtn").disabled = false;
-        
-        if (specialItems.includes(result)) {
-            document.getElementById("result-text").innerText = "🎲 抽到：" + result + "！";
-            // 如果抽到特殊格，可以讓使用者手動再點一次或自動跳轉，這裡先顯示結果
-        } else {
-            document.getElementById("result-text").innerText = "🎉 今天吃：" + result;
-        }
-    }
-
+    // 初始化渲染
     renderBoard();
 </script>
 
