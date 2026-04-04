@@ -1,132 +1,140 @@
-/* 顏色變數設定 */
+/* 顏色與主題設定 */
 :root {
-    --active-color: #e67e22; /* 預設正餐橘 */
+    --active-color: #e67e22;
 }
 
-/* 模式色彩定義 */
 .theme-meal { --active-color: #e67e22; background-color: #fdf2e9; }
 .theme-snack { --active-color: #ff6b81; background-color: #fff0f3; }
 .theme-night { --active-color: #6c5ce7; background-color: #f3f0ff; }
 
-body {
-    transition: background-color 0.5s ease; /* 切換模式時背景平滑變色 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    padding-top: 80px; /* 給上方的導覽列留空間 */
+body { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    min-height: 100vh; 
+    margin: 0; 
+    transition: 0.5s ease; 
     font-family: "Microsoft JhengHei", sans-serif;
+    padding-top: 20px;
 }
 
-/* 上方切換選單 */
-.nav {
-    position: fixed;
-    top: 20px;
-    display: flex;
-    gap: 15px;
+/* 頂部導覽列 */
+.nav { 
+    display: flex; 
+    gap: 12px; 
+    margin-bottom: 25px; 
     z-index: 100;
 }
 
-.nav button {
-    padding: 10px 20px;
-    border-radius: 25px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.nav button { 
+    padding: 10px 20px; 
+    border-radius: 25px; 
+    border: none; 
+    color: white; 
+    font-weight: bold; 
+    cursor: pointer; 
     transition: 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.nav button:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+.nav button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
 
 /* 主容器 */
-.container {
-    text-align: center;
-    background: white;
-    padding: 30px;
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    width: 550px;
-}
-
-h1 { color: var(--active-color); margin-bottom: 20px; transition: 0.3s; }
-
-/* 輸入與按鈕區 */
-input { padding: 10px; border: 2px solid #eee; border-radius: 10px; width: 200px; outline: none; }
-.add-btn { background-color: var(--active-color); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; margin-left: 5px; }
-
-/* 大富翁網格 */
-.board {
-    display: grid;
-    gap: 10px;
-    margin: 25px auto;
-    width: 480px;
-    height: 480px;
+.container { 
+    text-align: center; 
+    background: white; 
+    padding: 35px; 
+    border-radius: 30px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
+    width: 550px; 
+    min-height: 680px; 
     position: relative;
 }
 
-/* 格子基礎樣式 */
-.cell {
-    background: white;
-    border: 2px solid #f0f0f0;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 15px;
-    color: #555;
-    transition: 0.15s;
-    text-align: center;
+h1 { color: var(--active-color); margin: 10px 0 20px; font-size: 2.2rem; transition: 0.3s; }
+
+/* 輸入區 */
+input { padding: 12px; border: 2px solid #f0f0f0; border-radius: 12px; width: 220px; outline: none; transition: 0.3s; }
+input:focus { border-color: var(--active-color); }
+.add-btn { background-color: var(--active-color); color: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: bold; margin-left: 8px; }
+
+/* 遊戲區域 */
+.game-view { position: relative; width: 480px; height: 480px; margin: 0 auto; }
+
+/* 大富翁 & 驚喜盒 (Grid 模式) */
+.board-grid { display: grid; gap: 12px; width: 100%; height: 100%; }
+.cell { 
+    background: white; 
+    border: 2px solid #f0f0f0; 
+    border-radius: 15px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: bold; 
+    font-size: 15px; 
+    color: #444; 
+    transition: 0.1s linear;
     padding: 5px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.02);
 }
 
-/* 特殊格：下1格、再選一次等 */
-.cell.special {
-    border: 2px dashed #ff7675;
-    color: #e74c3c;
-    background-color: #fffafa;
+.cell.special { border: 2px dashed #ff7675; color: #e74c3c; background-color: #fffafa; }
+
+/* 選中發光 */
+.cell.active { 
+    background-color: #ffeb3b !important; 
+    border-color: var(--active-color) !important; 
+    color: var(--active-color) !important; 
+    transform: scale(1.1); 
+    z-index: 10; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.15); 
 }
 
-/* 選中發光效果 */
-.cell.active {
-    background-color: #ffeb3b !important;
-    border-color: var(--active-color) !important;
-    color: var(--active-color) !important;
-    transform: scale(1.12);
-    z-index: 10;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+/* --- 夜市抽獎機專屬樣式 --- */
+.slot-machine { 
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center; 
+    height: 100%; 
+    background: #2d3436; 
+    border-radius: 30px; 
+    border: 10px solid #636e72;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
 }
 
-/* --- 夜市版專屬樣式：變成照片中的球球 --- */
-.wheel-mode .cell {
-    border-radius: 50% !important; /* 強制變圓形 */
-    aspect-ratio: 1 / 1;
-    border-width: 3px;
+.slot-window {
+    width: 320px; 
+    height: 140px; 
+    background: #fff; 
+    border-radius: 20px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 2.2rem; 
+    font-weight: 900; 
+    color: #6c5ce7;
+    border: 5px solid #dfe6e9;
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.2);
+    padding: 10px;
+    text-shadow: 1px 1px 0px #eee;
 }
 
-/* 中間按鈕區 */
-.center-area {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 20;
-    width: 45%;
+/* 中間大按鈕 */
+.center-btn-area { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; }
+.main-btn { 
+    padding: 18px 40px; 
+    font-size: 1.4rem; 
+    border-radius: 50px; 
+    border: none; 
+    background: var(--active-color); 
+    color: white; 
+    font-weight: bold; 
+    cursor: pointer; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: 0.2s;
 }
+.main-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+.main-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.decide-btn {
-    width: 100%;
-    padding: 18px;
-    font-size: 1.4rem;
-    border-radius: 50px;
-    border: none;
-    background-color: var(--active-color);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-#result-text { font-size: 1.6rem; font-weight: bold; color: #333; margin-top: 25px; min-height: 40px; }
+#result-text { font-size: 1.6rem; font-weight: bold; margin-top: 25px; height: 45px; color: #333; }
