@@ -18,7 +18,7 @@
         
         body { display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; padding: 10px; transition: 0.3s; box-sizing: border-box; }
         
-        /* 導覽列 */
+        /* 導覽列：加入行李清單按鈕 */
         .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; width: 100%; }
         .nav button { padding: 8px 15px; border-radius: 20px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .nav button:active { transform: scale(0.9); }
@@ -52,16 +52,16 @@
         .lever-knob { width: 34px; height: 34px; background: radial-gradient(circle at 30% 30%, #ff4d4d, #b30000); border-radius: 50%; position: absolute; top: -22px; left: 50%; transform: translateX(-50%); }
         .lever-arm.pulling { top: 45px; height: 35px; }
 
-        /* ✨ 結果顯示區域 (位於格子與清單之間) */
+        /* 結果顯示區域 */
         #result-text { font-size: 1.2rem; font-weight: bold; margin: 20px 0; min-height: 50px; color: #333; display: flex; align-items: center; justify-content: center; border-radius: 15px; background: #fef9f3; border: 1px solid #faebd7; }
         
-        /* 美食池樣式 */
+        /* 清單管理區 */
         .food-pool { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 15px; width: 100%; box-sizing: border-box; }
         .pool-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
         .pool-item { background: white; border: 1px solid #ddd; padding: 4px 8px; border-radius: 15px; font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; }
         .pool-item b { color: #ff4d4d; cursor: pointer; padding-left: 3px; }
 
-        /* 🏁 專業頁腳 (比照工具邦樣式) */
+        /* 專業頁腳 */
         footer { margin-top: 30px; padding: 20px 10px; text-align: center; font-family: sans-serif; border-top: 1px solid #eee; width: 100%; max-width: 480px; }
         .footer-links { margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 0.85rem; }
         .footer-links a { color: #666; text-decoration: none; transition: 0.2s; }
@@ -71,11 +71,12 @@
     </style>
 </head>
 <body class="theme-meal">
-    <!-- 頂部切換鈕 -->
+    <!-- 頂部切換鈕：整合美食與旅遊工具 -->
     <div class="nav">
         <button style="background: #e67e22;" onclick="switchMode('meal')">🍱 正餐</button>
         <button style="background: #ff6b81;" onclick="switchMode('snack')">🍰 點心</button>
         <button style="background: #6c5ce7;" onclick="switchMode('night')">🎡 夜市</button>
+        <button style="background: #3498db;" onclick="location.href='travel-list.html'">✈️ 行李清單</button>
     </div>
 
     <!-- 主要內容區 -->
@@ -89,7 +90,7 @@
         <!-- 遊戲區域 -->
         <div class="game-view" id="gameView"></div>
 
-        <!-- 結果顯示區 (格子下方) -->
+        <!-- 結果顯示區 -->
         <div id="result-text">今天吃什麼？</div>
 
         <!-- 清單管理區 -->
