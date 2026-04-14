@@ -15,25 +15,35 @@
         .theme-meal { --active-color: #e67e22; background-color: #fdf2e9; }
         .theme-snack { --active-color: #ff6b81; background-color: #fff0f3; }
         .theme-night { --active-color: #6c5ce7; background-color: #f3f0ff; }
+        
         body { display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; padding: 10px; transition: 0.3s; box-sizing: border-box; }
+        
+        /* 導覽列 */
         .nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; width: 100%; }
-        .nav button { padding: 8px 15px; border-radius: 20px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .nav button { padding: 8px 15px; border-radius: 20px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .nav button:active { transform: scale(0.9); }
+
+        /* 主容器 */
         .container { text-align: center; background: white; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 480px; box-sizing: border-box; }
         h1 { color: var(--active-color); margin: 5px 0 15px; font-size: 1.6rem; }
+        
+        /* 控制區 */
         .controls { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
         input { padding: 10px; border: 2px solid #eee; border-radius: 10px; width: 60%; font-size: 16px; outline: none; }
         .add-btn { background-color: var(--active-color); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        /* 遊戲區域 */
+
+        /* 遊戲視圖 */
         .game-view { width: 100%; aspect-ratio: 1/1; max-width: 400px; margin: 0 auto; position: relative; display: flex; align-items: center; justify-content: center; }
         .board-grid { display: grid; gap: 8px; width: 100%; height: 100%; }
         .cell { background: white; border: 1px solid #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(10px, 3.2vw, 14px); color: #555; text-align: center; padding: 2px; }
         .cell.active { background-color: #ffeb3b !important; border-color: var(--active-color) !important; color: var(--active-color) !important; transform: scale(1.05); z-index: 10; }
         .cell.special { border: 1px dashed #ff7675; color: #e74c3c; }
-        .center-btn-area { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; width: 45%; }
-        .main-btn { width: 100%; padding: 12px 0; border-radius: 50px; border: none; background: var(--active-color); color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
         
-        /* 拉霸機 */
+        /* 中央按鈕 */
+        .center-btn-area { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; width: 45%; }
+        .main-btn { width: 100%; padding: 12px 0; border-radius: 50px; border: none; background: var(--active-color); color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* 拉霸機樣式 */
         .slot-container { display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; height: 100%; }
         .slot-machine { background: #2d3436; border: 6px solid #636e72; border-radius: 20px; padding: 15px; width: 75%; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
         .slot-window { width: 100%; height: 80px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: #6c5ce7; text-align: center; }
@@ -42,22 +52,33 @@
         .lever-knob { width: 34px; height: 34px; background: radial-gradient(circle at 30% 30%, #ff4d4d, #b30000); border-radius: 50%; position: absolute; top: -22px; left: 50%; transform: translateX(-50%); }
         .lever-arm.pulling { top: 45px; height: 35px; }
 
-        /* ✨ 結果顯示區域 (移動到中間) */
-        #result-text { font-size: 1.2rem; font-weight: bold; margin: 20px 0; min-height: 40px; color: #333; display: flex; align-items: center; justify-content: center; border-radius: 15px; background: #fef9f3; }
+        /* ✨ 結果顯示區域 (位於格子與清單之間) */
+        #result-text { font-size: 1.2rem; font-weight: bold; margin: 20px 0; min-height: 50px; color: #333; display: flex; align-items: center; justify-content: center; border-radius: 15px; background: #fef9f3; border: 1px solid #faebd7; }
         
-        /* 清單區域 */
+        /* 美食池樣式 */
         .food-pool { margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 15px; width: 100%; box-sizing: border-box; }
         .pool-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
         .pool-item { background: white; border: 1px solid #ddd; padding: 4px 8px; border-radius: 15px; font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; }
         .pool-item b { color: #ff4d4d; cursor: pointer; padding-left: 3px; }
+
+        /* 🏁 專業頁腳 (比照工具邦樣式) */
+        footer { margin-top: 30px; padding: 20px 10px; text-align: center; font-family: sans-serif; border-top: 1px solid #eee; width: 100%; max-width: 480px; }
+        .footer-links { margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 0.85rem; }
+        .footer-links a { color: #666; text-decoration: none; transition: 0.2s; }
+        .footer-links a:hover { color: var(--active-color); }
+        .footer-copy { color: #999; font-size: 0.75rem; line-height: 1.8; }
+        .footer-copy b { color: #666; }
     </style>
 </head>
 <body class="theme-meal">
+    <!-- 頂部切換鈕 -->
     <div class="nav">
         <button style="background: #e67e22;" onclick="switchMode('meal')">🍱 正餐</button>
         <button style="background: #ff6b81;" onclick="switchMode('snack')">🍰 點心</button>
         <button style="background: #6c5ce7;" onclick="switchMode('night')">🎡 夜市</button>
     </div>
+
+    <!-- 主要內容區 -->
     <div class="container">
         <h1 id="title">🍱 正餐大富翁</h1>
         <div class="controls">
@@ -65,17 +86,31 @@
             <button class="add-btn" onclick="addFood()">新增</button>
         </div>
 
-        <!-- 1. 遊戲格子區域 -->
+        <!-- 遊戲區域 -->
         <div class="game-view" id="gameView"></div>
 
-        <!-- 2. ✨ 結果顯示區域 (已移動到此) -->
+        <!-- 結果顯示區 (格子下方) -->
         <div id="result-text">今天吃什麼？</div>
 
-        <!-- 3. 自定義清單區域 (有叉叉那些) -->
+        <!-- 清單管理區 -->
         <div class="food-pool">
             <div id="poolList" class="pool-list"></div>
         </div>
     </div>
+
+    <!-- 專業頁腳 -->
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">首頁</a> |
+            <a href="report.html">回報問題</a> |
+            <a href="privacy.html">隱私權</a> |
+            <a href="terms.html">條款</a>
+        </div>
+        <div class="footer-copy">
+            © 2026 <b>KDC-trip</b><br>
+            ᴅᴇsɪɢɴᴇᴅ ʙʏ ᴋᴅᴄ ɪɴ ᴛᴀɪᴡᴀɴ
+        </div>
+    </footer>
 
     <script>
         const defaultData = {
