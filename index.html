@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>美食全攻略</title>
+    
+    <!-- 🔍 SEO 強化標籤 -->
+    <title>今天吃什麼？美食隨機決定器 - 大富翁、拉霸模式</title>
+    <meta name="description" content="解決午晚餐煩惱的美食隨機產生器。內建大富翁與拉霸模式，支援自定義菜單並自動儲存，一鍵開啟 Google 地圖導航。">
+    <meta name="keywords" content="今天吃什麼, 美食隨機產生器, 午餐推薦, 餐廳決定器, 大富翁, 拉霸機">
+
     <style>
         /* 直接把樣式內建，保證絕對不會讀不到畫面 */
         :root { --active-color: #e67e22; }
@@ -17,7 +22,7 @@
         h1 { color: var(--active-color); margin: 5px 0 15px; font-size: 1.6rem; }
         .controls { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
         input { padding: 10px; border: 2px solid #eee; border-radius: 10px; width: 60%; font-size: 16px; outline: none; }
-        .add-btn { background-color: var(--active-color); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; }
+        .add-btn { background-color: var(--active-color); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .game-view { width: 100%; aspect-ratio: 1/1; max-width: 400px; margin: 0 auto; position: relative; display: flex; align-items: center; justify-content: center; }
         .board-grid { display: grid; gap: 8px; width: 100%; height: 100%; }
         .cell { background: white; border: 1px solid #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(10px, 3.2vw, 14px); color: #555; text-align: center; padding: 2px; }
@@ -36,7 +41,8 @@
         .pool-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
         .pool-item { background: white; border: 1px solid #ddd; padding: 4px 8px; border-radius: 15px; font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; }
         .pool-item b { color: #ff4d4d; cursor: pointer; padding-left: 3px; }
-        #result-text { font-size: 1.3rem; font-weight: bold; margin-top: 15px; min-height: 35px; color: #333; }
+        #result-text { font-size: 1.2rem; font-weight: bold; margin-top: 15px; min-height: 45px; color: #333; line-height: 1.4; }
+        .map-link { color: #3498db; text-decoration: underline; cursor: pointer; margin-left: 5px; display: inline-block; }
     </style>
 </head>
 <body class="theme-meal">
@@ -57,6 +63,7 @@
         </div>
         <div id="result-text">今天吃什麼？</div>
     </div>
+
     <script>
         const defaultData = {
             meal: ["牛肉麵", "擔仔麵", "滷肉飯", "便利超商", "雞肉飯", "煎餃", "麥當勞", "漢堡王", "subway", "拉麵", "便當", "肯德基"],
@@ -64,13 +71,41 @@
             night: ["臭豆腐", "蚵仔煎", "烤魷魚", "章魚燒", "骰子牛", "糖葫蘆", "滷味", "鹹酥雞", "胡椒餅"]
         };
         const fillers = ["下 1 格", "前 3 格", "再選一次"];
-        let currentMode = 'meal', foods = [...defaultData.meal], gridContent = [], isRunning = false, currentIndex = 0;
+        let currentMode = 'meal', foods = [], gridContent = [], isRunning = false, currentIndex = 0;
+
+        // 💾 功能 1: 初始化時讀取儲存的清單
+        function init() {
+            const savedData = localStorage.getItem('kdc_food_data');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                foods = [...parsed[currentMode]];
+            } else {
+                foods = [...defaultData[currentMode]];
+            }
+            refresh();
+        }
+
+        // 💾 功能 1: 儲存清單到本地
+        function saveToLocal() {
+            const savedData = localStorage.getItem('kdc_food_data');
+            let dataObj = savedData ? JSON.parse(savedData) : { ...defaultData };
+            dataObj[currentMode] = foods;
+            localStorage.setItem('kdc_food_data', JSON.stringify(dataObj));
+        }
 
         function switchMode(m) {
             if(isRunning) return;
-            currentMode = m; foods = [...defaultData[m]];
+            currentMode = m; 
+            const savedData = localStorage.getItem('kdc_food_data');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                foods = [...parsed[m]];
+            } else {
+                foods = [...defaultData[m]];
+            }
             document.body.className = `theme-${m}`;
             document.getElementById('title').innerText = m==='meal'?"🍱 正餐大富翁":m==='snack'?"🍰 點心驚喜盒":"🎡 夜市拉霸機";
+            document.getElementById('result-text').innerText = "今天吃什麼？";
             refresh();
         }
 
@@ -103,22 +138,69 @@
             foods.forEach((f, i) => { const s = document.createElement("span"); s.className="pool-item"; s.innerHTML=`${f} <b onclick="del(${i})">✕</b>`; p.appendChild(s); });
         }
 
-        function addFood() { const i = document.getElementById("foodInput"); if(i.value.trim()){ foods.push(i.value.trim()); i.value=""; refresh(); } }
-        function del(i) { if(!isRunning){ foods.splice(i, 1); refresh(); } }
-        function pull() { if(isRunning) return; document.getElementById("lArm").classList.add("pulling"); setTimeout(()=>{ document.getElementById("lArm").classList.remove("pulling"); startS(); }, 300); }
-        function startS() { isRunning=true; let c=0; const t=setInterval(()=>{ const r=foods[Math.floor(Math.random()*foods.length)]; document.getElementById("slotOut").innerText=r; if(c++>25){ clearInterval(t); isRunning=false; document.getElementById("result-text").innerText="🎉 抽到："+r; }}, 70); }
-        function goGrid() {
-            if(isRunning) return; isRunning=true; let s=0, total=gridContent.length*3+Math.floor(Math.random()*gridContent.length), spd=50;
-            function run() {
-                document.querySelectorAll('.cell').forEach(c=>c.classList.remove('active'));
-                currentIndex = currentMode==='meal' ? (currentIndex+1)%gridContent.length : Math.floor(Math.random()*gridContent.length);
-                const a = document.getElementById(`cell-${currentIndex}`); if(a) a.classList.add('active');
-                if(++s < total){ if(total-s<10) spd+=40; setTimeout(run, spd); }
-                else { isRunning=false; document.getElementById("result-text").innerText="🎉 結果："+gridContent[currentIndex]; }
-            }
-            run();
+        function addFood() { 
+            const i = document.getElementById("foodInput"); 
+            if(i.value.trim()){ 
+                foods.push(i.value.trim()); 
+                i.value = ""; 
+                saveToLocal(); // 儲存
+                refresh(); 
+            } 
         }
-        refresh();
+
+        function del(idx) { 
+            foods.splice(idx, 1); 
+            saveToLocal(); // 儲存
+            refresh(); 
+        }
+
+        // 📍 功能 2: 顯示結果並加上 Google 地圖連結
+        function displayFinalResult(name) {
+            const res = document.getElementById('result-text');
+            if (fillers.includes(name)) {
+                res.innerHTML = `命運安排：<span style="color:#e74c3c">${name}</span>`;
+            } else {
+                const mapUrl = `https://google.com{encodeURIComponent(name)}`;
+                res.innerHTML = `今天就吃：<b style="color:var(--active-color)">${name}</b><br><a href="${mapUrl}" target="_blank" class="map-link">📍 點我查看地圖導航</a>`;
+            }
+        }
+
+        function goGrid() {
+            if(isRunning || foods.length === 0) return;
+            isRunning = true;
+            let steps = 15 + Math.floor(Math.random()*10), count = 0;
+            const timer = setInterval(() => {
+                document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+                currentIndex = (currentIndex + 1) % gridContent.length;
+                document.getElementById(`cell-${currentIndex}`).classList.add('active');
+                count++;
+                if(count >= steps) {
+                    clearInterval(timer);
+                    isRunning = false;
+                    displayFinalResult(gridContent[currentIndex]);
+                }
+            }, 100);
+        }
+
+        function pull() {
+            if(isRunning || foods.length === 0) return;
+            isRunning = true;
+            const arm = document.getElementById('lArm'), out = document.getElementById('slotOut');
+            arm.classList.add('pulling');
+            setTimeout(() => arm.classList.remove('pulling'), 300);
+            let count = 0;
+            const timer = setInterval(() => {
+                out.innerText = foods[Math.floor(Math.random()*foods.length)];
+                count++;
+                if(count > 15) {
+                    clearInterval(timer);
+                    isRunning = false;
+                    displayFinalResult(out.innerText);
+                }
+            }, 80);
+        }
+
+        init(); // 啟動初始化
     </script>
 </body>
 </html>
