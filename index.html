@@ -2,13 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="google-site-verification" content="c_8th4705p7WVy5uLptRAQ921YnCgsdcBTeNT4vE-k0" />
+    <meta name="google-site-verification" content="SaUo4prDs1i9b4nH0MQn5nuv8mFdC-vCQ-PpF-QUgE0" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <!-- 🔍 SEO 強化標籤 -->
-    <title>今天吃什麼？美食隨機決定器 - 大富翁、拉霸模式</title>
-    <meta name="description" content="解決午晚餐煩惱的美食隨機產生器。內建大富翁與拉霸模式，支援自定義菜單並自動儲存，一鍵開啟 Google 地圖導航。">
-    <meta name="keywords" content="今天吃什麼, 美食隨機產生器, 午餐推薦, 餐廳決定器, 大富翁, 拉霸機">
+    <title>今天吃什麼？隨機美食決定器 | 跟著小K去散步</title>
+    <meta name="description" content="KDC 旅遊生活工具箱：解決午晚餐煩惱的美食隨機產生器。內建大富翁與拉霸模式，支援自定義菜單、自動儲存，並提供一鍵開啟 Google 地圖導航功能。">
+    <meta name="keywords" content="今天吃什麼, 美食隨機產生器, 午餐推薦, 餐廳決定器, 大富翁, 拉霸機, KDC工具箱, 旅遊全攻略">
+    <meta name="author" content="KDC-trip">
 
     <style>
         /* 直接把樣式內建，保證絕對不會讀不到畫面 */
@@ -42,8 +43,23 @@
         .pool-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
         .pool-item { background: white; border: 1px solid #ddd; padding: 4px 8px; border-radius: 15px; font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; }
         .pool-item b { color: #ff4d4d; cursor: pointer; padding-left: 3px; }
-        #result-text { font-size: 1.2rem; font-weight: bold; margin-top: 15px; min-height: 45px; color: #333; line-height: 1.4; }
-        .map-link { color: #3498db; text-decoration: underline; cursor: pointer; margin-left: 5px; display: inline-block; }
+        #result-text { font-size: 1.2rem; font-weight: bold; margin-top: 15px; min-height: 80px; color: #333; line-height: 1.5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* 📍 地圖按鈕樣式優化 */
+        .map-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            background-color: #3498db;
+            color: white !important;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            transition: 0.2s;
+        }
+        .map-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="theme-meal">
@@ -74,19 +90,18 @@
         const fillers = ["下 1 格", "前 3 格", "再選一次"];
         let currentMode = 'meal', foods = [], gridContent = [], isRunning = false, currentIndex = 0;
 
-        // 💾 功能 1: 初始化時讀取儲存的清單
+        // 💾 功能: 初始化與讀取儲存
         function init() {
             const savedData = localStorage.getItem('kdc_food_data');
             if (savedData) {
                 const parsed = JSON.parse(savedData);
-                foods = [...parsed[currentMode]];
+                foods = parsed[currentMode] ? [...parsed[currentMode]] : [...defaultData[currentMode]];
             } else {
                 foods = [...defaultData[currentMode]];
             }
             refresh();
         }
 
-        // 💾 功能 1: 儲存清單到本地
         function saveToLocal() {
             const savedData = localStorage.getItem('kdc_food_data');
             let dataObj = savedData ? JSON.parse(savedData) : { ...defaultData };
@@ -100,7 +115,7 @@
             const savedData = localStorage.getItem('kdc_food_data');
             if (savedData) {
                 const parsed = JSON.parse(savedData);
-                foods = [...parsed[m]];
+                foods = parsed[m] ? [...parsed[m]] : [...defaultData[m]];
             } else {
                 foods = [...defaultData[m]];
             }
@@ -144,36 +159,43 @@
             if(i.value.trim()){ 
                 foods.push(i.value.trim()); 
                 i.value = ""; 
-                saveToLocal(); // 儲存
+                saveToLocal();
                 refresh(); 
             } 
         }
 
         function del(idx) { 
             foods.splice(idx, 1); 
-            saveToLocal(); // 儲存
+            saveToLocal();
             refresh(); 
         }
 
-        // 📍 功能 2: 顯示結果並加上 Google 地圖連結
+        // 📍 功能: 顯示結果並加上專業地圖按鈕
         function displayFinalResult(name) {
             const res = document.getElementById('result-text');
             if (fillers.includes(name)) {
-                res.innerHTML = `命運安排：<span style="color:#e74c3c">${name}</span>`;
+                res.innerHTML = `<div>命運安排：<span style="color:#e74c3c">${name}</span></div>`;
             } else {
                 const mapUrl = `https://google.com{encodeURIComponent(name)}`;
-                res.innerHTML = `今天就吃：<b style="color:var(--active-color)">${name}</b><br><a href="${mapUrl}" target="_blank" class="map-link">📍 點我查看地圖導航</a>`;
+                res.innerHTML = `
+                    <div>今天就吃：<b style="color:var(--active-color)">${name}</b></div>
+                    <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" class="map-btn">
+                       📍 開啟 Google 地圖導航
+                    </a>
+                `;
             }
         }
 
         function goGrid() {
             if(isRunning || foods.length === 0) return;
             isRunning = true;
+            document.getElementById('result-text').innerText = "命運轉動中...";
             let steps = 15 + Math.floor(Math.random()*10), count = 0;
             const timer = setInterval(() => {
                 document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
                 currentIndex = (currentIndex + 1) % gridContent.length;
-                document.getElementById(`cell-${currentIndex}`).classList.add('active');
+                const activeCell = document.getElementById(`cell-${currentIndex}`);
+                if(activeCell) activeCell.classList.add('active');
                 count++;
                 if(count >= steps) {
                     clearInterval(timer);
@@ -201,7 +223,7 @@
             }, 80);
         }
 
-        init(); // 啟動初始化
+        init();
     </script>
 </body>
 </html>
