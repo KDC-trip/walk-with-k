@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>出國行李清單 | KDC 旅遊生活工具箱</title>
+    <style>
+        :root { --active-color: #3498db; --bg-color: #ebf5fb; }
+        body { font-family: sans-serif; background: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        .container { width: 100%; max-width: 480px; background: white; padding: 20px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); box-sizing: border-box; }
+        h1 { color: var(--active-color); text-align: center; margin-bottom: 20px; font-size: 1.5rem; }
+        
+        .category { margin-bottom: 20px; }
+        .cat-title { font-weight: bold; color: #2980b9; border-left: 5px solid var(--active-color); padding-left: 10px; margin-bottom: 10px; font-size: 1.1rem; }
+        
+        .item-list { list-style: none; padding: 0; margin: 0; }
+        .item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
+        .item:last-child { border-bottom: none; }
+        .item input[type="checkbox"] { width: 20px; height: 20px; margin-right: 15px; cursor: pointer; }
+        .item span { font-size: 1rem; color: #333; }
+        
+        /* 打勾後的樣式 */
+        .item.checked span { color: #bdc3c7; text-decoration: line-through; }
+        .item.checked { background: #fafafa; }
+
+        .reset-btn { width: 100%; padding: 12px; background: #95a5a6; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        footer { margin-top: auto; padding: 30px 10px 20px; text-align: center; width: 100%; max-width: 480px; }
+        .footer-links { margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 0.85rem; }
+        .footer-links a { color: #666; text-decoration: none; }
+        .footer-copy { color: #999; font-size: 0.75rem; line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✈️ 出國行李檢查表</h1>
+        
+        <div id="list-content">
+            <!-- 由 JS 生成內容 -->
+        </div>
+
+        <button class="reset-btn" onclick="resetList()">全部重置清單</button>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">首頁</a> |
+            <a href="report.html">回報問題</a> |
+            <a href="privacy.html">隱私權</a> |
+            <a href="terms.html">條款</a>
+        </div>
+        <div class="footer-copy">
+            © 2026 <b>KDC-trip</b><br>
+            ᴅᴇsɪɢɴᴇᴅ ʙʏ ᴋᴅᴄ ɪɴ ᴛᴀɪᴡᴀɴ
+        </div>
+    </footer>
+
+    <script>
+        // 預設清單
+        const defaultList = [
+            { cat: "📑 必備證件", items: ["護照 (正本+影本)", "簽證/電子簽證", "機票/訂房確認單", "旅遊保險單", "外幣現金/信用卡"] },
+            { cat: "🔌 電子產品", items: ["手機充電線", "行動電源", "萬用轉接頭", "耳機", "相機/記憶卡"] },
+            { cat: "👕 衣物配件", items: ["換洗衣物", "睡衣", "襪子/內衣褲", "外套 (防風/保暖)", "好走路的鞋子"] },
+            { cat: "🧼 個人用品", items: ["牙刷/牙膏", "洗面乳/保養品", "刮鬍刀/指甲剪", "個人藥品", "雨傘/雨衣"] }
+        ];
+
+        let userProgress = JSON.parse(localStorage.getItem('kdc_travel_list')) || {};
+
+        function render() {
+            const container = document.getElementById('list-content');
+            container.innerHTML = "";
+
+            defaultList.forEach(group => {
+                const catDiv = document.createElement('div');
+                catDiv.className = 'category';
+                catDiv.innerHTML = `<div class="cat-title">${group.cat}</div>`;
+                
+                const ul = document.createElement('ul');
+                ul.className = 'item-list';
+
+                group.items.forEach(itemName => {
+                    const isChecked = userProgress[itemName] ? 'checked' : '';
+                    const li = document.createElement('li');
+                    li.className = `item ${isChecked}`;
+                    li.innerHTML = `
+                        <input type="checkbox" ${isChecked ? 'checked' : ''}>
+                        <span>${itemName}</span>
+                    `;
+                    li.onclick = () => toggleItem(itemName);
+                    ul.appendChild(li);
+                });
+
+                catDiv.appendChild(ul);
+                container.appendChild(catDiv);
+            });
+        }
+
+        function toggleItem(name) {
+            userProgress[name] = !userProgress[name];
+            localStorage.setItem('kdc_travel_list', JSON.stringify(userProgress));
+            render();
+        }
+
+        function resetList() {
+            if(confirm("確定要重置所有勾選項目嗎？")) {
+                userProgress = {};
+                localStorage.removeItem('kdc_travel_list');
+                render();
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
