@@ -1,12 +1,9 @@
 # 🍱 今天吃什麼？- 隨機美食決定器 (What To Eat)
 
-![License](https://shields.io)
-![Language](https://shields.io)
-![Status](https://shields.io)
 
 **「今天吃什麼」** 是一個專為解決選餐困難而設計的實用工具。透過趣味的大富翁與拉霸機模式，幫你快速從口袋名單中選出下一餐！
 
-🔗 **[👉 立即點擊體驗網頁](https://github.io)**
+🔗 **[👉 立即點擊體驗網頁]((https://kdc-trip.github.io/walk-with-k/))**
 
 ---
 
@@ -43,10 +40,9 @@
 
 ### v1.3.0 (最新更新)
 *   優化結果顯示位置，視覺更聚焦。
-*   徹底移除外部跳轉連結，保持工具純淨性。
-*   修正 README 徽章顯示錯誤 (解決 XX 破圖問題)。
+
 
 ---
 
-© 2024 [KDC-trip](https://github.com). 
+© 2026 [KDC-trip](https://github.com). 
 *本專案隸屬於 KDC 旅遊生活工具箱系列。*
