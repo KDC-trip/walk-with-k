@@ -36,7 +36,6 @@
         .pool-item { background: white; border: 1px solid #ddd; padding: 4px 8px; border-radius: 15px; font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; }
         .pool-item b { color: #ff4d4d; cursor: pointer; padding-left: 3px; }
         
-        /* 頁腳樣式 */
         footer { margin-top: 30px; padding: 20px 10px; text-align: center; border-top: 1px solid #eee; width: 100%; max-width: 480px; }
         .footer-links { margin-bottom: 12px; font-size: 0.85rem; display: flex; flex-wrap: wrap; justify-content: center; }
         .footer-links a { color: #666; text-decoration: none; margin: 0 5px; }
@@ -83,7 +82,6 @@
     </footer>
 
     <script>
-        // ... (保持原本的 JavaScript 邏輯不變) ...
         const defaultData = {
             meal: ["牛肉麵", "擔仔麵", "滷肉飯", "便利超商", "雞肉飯", "煎餃", "麥當勞", "漢堡王", "subway", "拉麵", "便當", "肯德基"],
             snack: ["雞蛋仔", "雞排", "地瓜球", "手搖飲", "可麗餅", "甜甜圈", "鬆餅", "豆花", "冰淇淋", "布丁", "泡芙"],
@@ -91,6 +89,14 @@
         };
         const fillers = ["下 1 格", "前 3 格", "再選一次"];
         let currentMode = 'meal', foods = [], gridContent = [], isRunning = false, currentIndex = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
         function init() {
             const savedData = localStorage.getItem('kdc_food_data');
@@ -134,13 +140,19 @@
                 const b = document.createElement('div'); b.className = "board-grid";
                 let n = 4; while ((4*n-4) < foods.length) n++;
                 b.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
-                gridContent = [...foods].sort(()=>Math.random()-0.5);
-                while (gridContent.length < (4*n-4)) gridContent.push(fillers[Math.floor(Math.random()*fillers.length)]);
+                
+                gridContent = shuffle([...foods]);
+                while (gridContent.length < (4*n-4)) {
+                    gridContent.push(fillers[Math.floor(Math.random()*fillers.length)]);
+                }
+                gridContent = shuffle(gridContent); 
+
                 const path = [];
                 for(let i=0;i<n;i++) path.push({r:1,c:i+1});
                 for(let i=2;i<n;i++) path.push({r:i,c:n});
                 for(let i=n;i>=1;i--) path.push({r:n,c:i});
                 for(let i=n-1;i>=2;i--) path.push({r:i,c:1});
+                
                 gridContent.forEach((t, i) => {
                     const d = document.createElement('div'); d.className = 'cell'+(fillers.includes(t)?' special':'');
                     d.id = `cell-${i}`; d.innerText = t; d.style.gridRow = path[i].r; d.style.gridColumn = path[i].c;
@@ -184,13 +196,18 @@
             if(isRunning || foods.length === 0) return;
             isRunning = true;
             document.getElementById('result-text').innerText = "命運轉動中...";
-            let steps = 15 + Math.floor(Math.random()*10), count = 0;
+            
+            let minSteps = gridContent.length * 2;
+            let steps = minSteps + Math.floor(Math.random() * 20) + 5; 
+            let count = 0;
+            
             const timer = setInterval(() => {
                 document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
                 currentIndex = (currentIndex + 1) % gridContent.length;
                 const activeCell = document.getElementById(`cell-${currentIndex}`);
                 if(activeCell) activeCell.classList.add('active');
                 count++;
+                
                 if(count >= steps) {
                     clearInterval(timer);
                     isRunning = false;
@@ -205,11 +222,14 @@
             const arm = document.getElementById('lArm'), out = document.getElementById('slotOut');
             arm.classList.add('pulling');
             setTimeout(() => arm.classList.remove('pulling'), 300);
+            
             let count = 0;
+            let totalSpins = 20 + Math.floor(Math.random() * 15); 
+            
             const timer = setInterval(() => {
                 out.innerText = foods[Math.floor(Math.random()*foods.length)];
                 count++;
-                if(count > 15) {
+                if(count > totalSpins) {
                     clearInterval(timer);
                     isRunning = false;
                     displayFinalResult(out.innerText);
